@@ -1,0 +1,98 @@
+import sys
+import numpy as np
+import cantera as ct
+import matplotlib.pyplot as plt
+
+mole_H = raw_input('Wprowadz liczbe moli H2.')
+mole_O = raw_input('Wprowadz liczbe moli O2.')
+
+x = raw_input('Jesli chcesz obliczyc temperature samozaplonu dla zadanego cisnienia, nacisnij A.\nJesli chcesz przeprowadzic symulacje spalania, nacisnij B.')
+
+while (x != 'A' and x != 'B'):
+    x = raw_input('Wpisz A lub B.')
+else:
+    if x == 'A':
+        mixture = ct.Solution('gri30.xml')
+
+        temp = 273.15
+        t0 = t1 = temp
+
+        press_string = raw_input('Wprowadz cisnienie mieszaniny [Pa].')
+        press = float(press_string)
+
+        mix = 'H2:' + str(mole_H) + ', O2:' + str(mole_O)
+        mixture.TPX = float(temp), float(press), mix
+
+        while abs(t1 - t0) < 0.1:
+
+            t0 = mixture.T
+
+            reactor = ct.IdealGasReactor(mixture)
+            simulation = ct.ReactorNet([reactor])
+            simulation.advance(1)
+
+            t1 = mixture.T
+
+            temp += 1
+            mixture.TP = float(temp), float(press)
+
+        print 'Temperatura samozapłonu przy podanym stężeniu'
+        print ' H2: %0.2f, O2: %0.2f i ciśnieniu %0.2f Pa' % (H, O, press)
+        print 'wynosi: %d K\n' % (t0)
+
+    elif x == 'B':
+        temp = raw_input('Wprowadz temperature mieszaniny [K].')
+        press = raw_input('Wprowadz cisnienie mieszaniny [Pa].')
+
+        mix = 'H2:' + str(mole_H) + ', O2:' + str(mole_O)
+        mixture = ct.Solution('gri30.xml')
+        mixture.TPX = float(temp), float(press), mix
+
+        next_states = ct.SolutionArray(mixture)
+        reactor = ct.IdealGasReactor(mixture)
+        simulation = ct.ReactorNet([reactor])
+
+        simulation.advance(100)
+
+        print 'Mieszanina osiagnela stan ustalony:'   
+        print '%10s %10s' % ('T[K]', 'P[Pa]')
+        print '%10f %10f\n' % (reactor.thermo.T, reactor.thermo.P)
+
+        mixture = ct.Solution('gri30.xml')
+        mixture.TPX = float(temp), float(press), mix
+
+        next_states = ct.SolutionArray(mixture, extra=['t'])
+        reactor = ct.IdealGasReactor(mixture)
+        simulation = ct.ReactorNet([reactor])
+
+        time = 0.0
+        
+        wyniki = open('wyniki.txt', 'w')
+
+        print '%10s %10s %10s' % ('t[s]', 'T[K]', 'P[Pa]')
+
+        for n in range(1000):
+            
+            wyniki.write(str(time) + ' ' + str(reactor.thermo.T) + ' ' + str(reactor.thermo.P) + '\n')
+            
+            time += 1.e-8
+            simulation.advance(time)
+            next_states.append(reactor.thermo.state, t=time*1e6)
+            
+            print '%10.2e %10.2f %10.2f' % (simulation.time, reactor.thermo.T, reactor.thermo.P)
+            
+        wyniki.close()
+
+        #matplotlib
+        plt.subplot(3, 1, 1)
+        plt.plot(next_states.t, next_states.T)
+        plt.xlabel('Time [ms]')
+        plt.ylabel('Temperature [K]')
+        plt.title('Temperature')
+
+        plt.subplot(3, 1, 3)
+        plt.plot(next_states.t, next_states.P)
+        plt.xlabel('Time [ms]')
+        plt.ylabel('Pressure [Pa]')
+        plt.title('Pressure')
+        plt.show()
