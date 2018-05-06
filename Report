@@ -33,7 +33,7 @@ The program was recording the mixture's temperature after 1 s. If the difference
 
 \section{Results}
 
-The results were printed to a .txt file and can be written if necessary. The proper charts (T[\textit{t}], p[\textit{t}]) were created using the \textit{matplot} library and can be printed after starting the program
+The results were printed to a \textit{wyniki.txt} file and can be written if necessary. The proper charts (T[\textit{t}], p[\textit{t}]) were created using the \textit{matplot} library and can be printed after starting the program
 
 I carried out the reaction for the following parameters:
 
