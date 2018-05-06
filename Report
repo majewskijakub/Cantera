@@ -1,0 +1,66 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{Cantera project: The constant-volume combustion of a hydrogen-oxygen mixture}
+\author{Jakub Majewski}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+The task was to write a program using the Python language in Cantera environment. The program was to carry out the combustion of a hydrogen-oxygen mixture and record the results. My program recorded the temperature and pressure as it was changing during the reaction.
+
+The program of mine has also one more useful function. It can calculate the auto-ignition temperature of the mixture. The model used in this case will be described later.
+
+\section{Literature and sources}
+
+www.cantera.org
+
+\section{Model description}
+
+The model used in this project consisted of gas and a closed, constant-volume vessel. The gas was a mixture of hydrogen and oxygen (molar coefficients were set by the user of the program). Both hydrogen and oxygen were ideal gases.
+
+The mixture was put into a reactor and the reaction was carried out for 1000 time steps of $10^-8$ s.
+
+If the mixture was combustible, the ignition was triggered by raising the temperature of the mixture. The reaction was held for \textit{t} = $10^-5$ s and during that time, the changes in temperature and pressure were recorded and saved into a \textit{wyniki.txt} file. Moreover, the program calculated the final, steady temperature and pressure of the mixture (after 100 s). These parameters may differ from the final ones calculated earlier if the time \textit{t} was too short for the reaction to stabilize.
+
+My program also calculated the auto-ignition temperature of the given mixture. The parameters set in this case were: molar coefficients of reagents and the initial pressure. The program was building new 'reactor' and raising its' temperature as long as the reaction didn't start.
+
+To get to know if the reaction started, I used the following model:
+
+The program was recording the mixture's temperature after 1 s. If the difference between the initial temperature and the temperature after 1 s was bigger than 0,1 deg - the ignition started (however, the reaction was taking place very slowly).
+
+\section{Results}
+
+The results were printed to a .txt file and can be written if necessary. The proper charts (T[\textit{t}], p[\textit{t}]) were created using the \textit{matplot} library and can be printed after starting the program
+
+I carried out the reaction for the following parameters:
+
+Number of $H_2$ moles: 2
+
+Number of $O_2$ moles: 1
+
+Initial temperature: 2000 K
+
+Initial pressure: 101325 Pa
+
+Parameters after time \textit{t} recorded by the program are as following:
+
+Final steady temperature: 3364 K
+
+Final recorded temperature: 3313 K
+
+Final steady pressure: 155627 Pa
+
+Final recorded pressure: 153852 Pa
+
+The small difference between the recorded and steady parameters means that the reaction needed just a little more time than \textit{t} to stabilize. The initial pressure of 101325 Pa is a normal pressure. The initial temperature of 2000 K is rather high which  results in high speed of the reaction.
+
+On the charts, we can see that at the beginning, the change in temperature and pressure is barely noticeable (straight-line fragment on the charts). At first, the parameters are slightly decreasing. But the reaction of ignition is self-accelerating and after about 170 time steps, the non-linear increase is visible.
+
+\section{Summary}
+
+My program properly calculated the pressure and temperature of the hydrogen-oxygen mixture. If the mixture isn't combustible (due to incorrect molar coefficients), the reaction doesn't take place. For too low initial temperature - the reaction also doesn't take place. As we rise the initial temperature (assuming the mixture is combustible), we can see that the final temperature and pressure also rise. The data saved in \textit{wyniki.txt} file can be used for further calculations.
+
+\end{document}
